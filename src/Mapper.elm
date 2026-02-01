@@ -100,7 +100,7 @@ mapMain options descriptors =
 
                     mapMethod : List Int -> MethodDescriptorProto -> Maybe (Res Method)
                     mapMethod sourceCodePath { name, inputType, outputType, serverStreaming, clientStreaming } =
-                        if serverStreaming || clientStreaming then
+                        if clientStreaming then
                             Nothing
 
                         else
@@ -109,6 +109,7 @@ mapMain options descriptors =
                                     { name = name
                                     , reqType = Name.absoluteRef inputType
                                     , resType = Name.absoluteRef outputType
+                                    , serverStreaming = serverStreaming
                                     , docs = sourceDocumentation ctx sourceCodePath
                                     }
 

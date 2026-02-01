@@ -784,7 +784,22 @@ describe("protoc-gen-elm", () => {
     it("integrates with elm-grpc", async () => {
       await repl.importModules("Proto.SomeGrpc.GrpcService", "Grpc");
       await repl.write(
-        "Grpc.new Proto.SomeGrpc.GrpcService.getOrders {} |> Grpc.toCmd identity"
+          "Grpc.new Proto.SomeGrpc.GrpcService.getOrders {} |> Grpc.toCmd identity"
+      );
+    });
+  });
+
+  describe("grpc with server streaming", () => {
+    it("generates a valid elm file for grpc_server_streaming.proto", async () => {
+      await compileElm([
+        "Proto/SomeStreamingGrpc/GrpcService.elm",
+      ]);
+    });
+
+    it("integrates with elm-grpc", async () => {
+      await repl.importModules("Proto.SomeStreamingGrpc.GrpcService", "Grpc");
+      await repl.write(
+          "Grpc.new Proto.SomeGrpc.GrpcService.getOrders {} |> Grpc.toCmd identity"
       );
     });
   });

@@ -37,6 +37,7 @@ type alias Method =
     { name : String
     , reqType : Ref
     , resType : Ref
+    , serverStreaming : Bool
     , docs : List String
     }
 

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package some_streaming_grpc;
+
+service grpc_service {
+  rpc get_orders(OrderRequest) returns (stream Order);
+}
+
+message OrderRequest {}
+message Order {}

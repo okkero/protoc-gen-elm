@@ -26,6 +26,9 @@ methodToAST service method =
         resType =
             method.resType.name
 
+        serverStreaming =
+            method.serverStreaming
+
         comment =
             C.emptyDocComment
                 |> C.markdown
@@ -45,8 +48,22 @@ methodToAST service method =
             C.fqTyped [ "Grpc", "Internal" ]
                 "Rpc"
                 [ C.fqTyped reqModule reqType []
-                , C.fqTyped resModule resType []
+                , if serverStreaming then
+                    C.typed "List"
+                        [ C.fqTyped resModule resType [] ]
+
+                  else
+                    C.fqTyped resModule resType []
                 ]
+
+        singleMessageDecoderFun =
+            C.fqFun [ "Grpc", "Internal" ] "singleMessageDecoder"
+
+        streamDecoderFun =
+            C.fqFun [ "Grpc", "Internal" ] "streamToListDecoder"
+
+        decoder =
+            C.fqVal resModule <| Common.decoderName resType
 
         expr =
             C.apply
@@ -56,7 +73,13 @@ methodToAST service method =
                     , ( "package", C.string service.package )
                     , ( "rpcName", C.string method.name )
                     , ( "encoder", C.fqVal reqModule <| Common.encoderName reqType )
-                    , ( "decoder", C.fqVal resModule <| Common.decoderName resType )
+                    , ( "decoder"
+                      , if serverStreaming then
+                            C.apply [ streamDecoderFun, decoder ]
+
+                        else
+                            C.apply [ singleMessageDecoderFun, decoder ]
+                      )
                     ]
                 ]
     in
