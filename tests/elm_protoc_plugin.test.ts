@@ -797,9 +797,18 @@ describe("protoc-gen-elm", () => {
     });
 
     it("integrates with elm-grpc", async () => {
-      await repl.importModules("Proto.SomeStreamingGrpc.GrpcService", "Grpc");
-      await repl.write(
-          "Grpc.new Proto.SomeGrpc.GrpcService.getOrders {} |> Grpc.toCmd identity"
+      await repl.importModules(
+        "Proto.SomeStreamingGrpc.GrpcService",
+        "Grpc",
+        "Grpc.Streaming"
+      );
+      const output = await repl.write(
+        "Grpc.new Proto.SomeStreamingGrpc.GrpcService.getOrders {}" +
+          " |> Grpc.Streaming.fromRequest" +
+          " |> Grpc.Streaming.toList"
+      );
+      expect(output).toEqual(
+        expect.stringMatching(/Task Grpc\.Error \(List Proto\.SomeStreamingGrpc\.Order_\)/)
       );
     });
   });

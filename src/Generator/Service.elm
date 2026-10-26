@@ -37,9 +37,17 @@ methodToAST service method =
                         , method.name
                         , "' sending a `"
                         , reqType
-                        , "` to get back a `"
+                        , if serverStreaming then
+                            "` to get back a stream of `"
+
+                          else
+                            "` to get back a `"
                         , resType
-                        , "`."
+                        , if serverStreaming then
+                            "`, read with `Grpc.Streaming`."
+
+                          else
+                            "`."
                         ]
                     )
                 |> Common.addDocs method.docs
@@ -49,7 +57,8 @@ methodToAST service method =
                 "Rpc"
                 [ C.fqTyped reqModule reqType []
                 , if serverStreaming then
-                    C.typed "List"
+                    C.fqTyped [ "Grpc", "Internal" ]
+                        "ServerStream"
                         [ C.fqTyped resModule resType [] ]
 
                   else
@@ -59,8 +68,8 @@ methodToAST service method =
         singleMessageDecoderFun =
             C.fqFun [ "Grpc", "Internal" ] "singleMessageDecoder"
 
-        streamDecoderFun =
-            C.fqFun [ "Grpc", "Internal" ] "streamToListDecoder"
+        serverStreamDecoderFun =
+            C.fqFun [ "Grpc", "Internal" ] "serverStreamDecoder"
 
         decoder =
             C.fqVal resModule <| Common.decoderName resType
@@ -75,7 +84,7 @@ methodToAST service method =
                     , ( "encoder", C.fqVal reqModule <| Common.encoderName reqType )
                     , ( "decoder"
                       , if serverStreaming then
-                            C.apply [ streamDecoderFun, decoder ]
+                            C.apply [ serverStreamDecoderFun, decoder ]
 
                         else
                             C.apply [ singleMessageDecoderFun, decoder ]

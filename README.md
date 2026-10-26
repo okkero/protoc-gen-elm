@@ -232,6 +232,8 @@ A gRPC call just needs
 The rest of the work is done by the `elm-grpc` package.
 It provides functions to convert the generated `Grpc.Rpc` instances into `Cmd`s and `Task`s, as well as setting the usual Http Request fields (headers, timeout, tracker etc.)
 
+A server-streaming method is generated as a `Grpc.Rpc req (Grpc.Streaming.ServerStream res)`, which is read with `elm-grpc`'s `Grpc.Streaming`. This needs a version of `elm-grpc` that has `Grpc.Streaming`. Client-streaming and bidirectional methods are not generated.
+
 
 ## Live Example
 
